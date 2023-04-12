@@ -7,13 +7,14 @@ Programming course at Chalmers University of Technology.
 
 ## Usage
 
-Include the headers like: `#include <md407/debug.h>`, and link the desired stuff.
+Include the headers like `#include <libmd407/debug.h>` and link the desired
+stuff.
 
 ### Example
 ```c
-#include <md407/gpio.h>
-#include <md407/time.h>
-#include <md407/debug.h>
+#include <libmd407/gpio.h>
+#include <libmd407/time.h>
+#include <libmd407/debug.h>
 
 int
 main(void)

@@ -17,6 +17,8 @@
 CC:=@CC@
 AR:=@AR@
 OBJCOPY:=@OBJCOPY@
+MKDIR_P:=@MKDIR_P@
+CP:=cp
 
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
@@ -30,42 +32,43 @@ SRC_DIR:=md407
 TEST_DIR:=test
 BUILD_DIR:=build
 
-SOURCES:=$(wildcard $(SRC_DIR)/*.h)
+HEADERS:=$(wildcard $(SRC_DIR)/*.h)
 
-TEST_SOURCES:=$(wildcard $(TEST_SRC_DIR)/*.c)
-TEST_OBJS:=$(TEST_SRCS:.c=.o)
-TEST_S19:=$(TEST_SRCS:.c=.s19)
+TEST_SOURCES:=$(wildcard $(TEST_DIR)/*.c)
+TEST_OBJS:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=.o))
+TEST_S19:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=.s19))
+TESTS:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=))
 
-TESTS:=$(addprefix $(BUILD_DIR)/,$(TEST_OBJS:.o=)) $(addprefix $(BUILD_DIR)/,$(TEST_S19))
+INSTALL_DIRS:=$(PREFIX)/include/libmd407
+BUILD_DIRS:=$(BUILD_DIR) $(BUILD_DIR)/$(TEST_DIR)
 
-# Rule to build the test sources inside the tests directory
-$(BUILD_DIR)/$(TEST_SRC_DIR)/%: $(BUILD_DIR)/$(TEST_SRC_DIR)/%.o $(BUILT_LIBS_OBJ)
-	$(CC) $(CC_FLAGS) $^ -o $@
+all:
+	@echo "Nothing to build as this is a header-only library."
 
-$(BUILD_DIR)/$(TEST_SRC_DIR)/%.o: $(TEST_SRC_DIR)/%.c
-	@mkdir -p $(@D)
-	$(CC) $(CC_FLAGS) -c $< -o $@
+$(INSTALL_DIRS) $(BUILD_DIRS):
+	$(MKDIR_P) $@
 
-$(BUILD_DIR)/$(TEST_SRC_DIR)/%.s19: $(BUILD_DIR)/$(TEST_SRC_DIR)/%
+install: | $(INSTALL_DIRS)
+	$(CP) $(HEADERS) $(PREFIX)/include/libmd407
+
+uninstall:
+	rm -rf $(PREFIX)/include/libmd407
+
+test: $(TESTS) $(TEST_S19)
+
+$(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.c | $(BUILD_DIR)/$(TEST_DIR)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/$(TEST_DIR)/%: $(BUILD_DIR)/$(TEST_DIR)/%.o
+	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ $(LIBS) $(LDFLAGS)
+
+$(BUILD_DIR)/$(TEST_DIR)/%.s19: $(BUILD_DIR)/$(TEST_DIR)/%
 	$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
 
-# Rule to build all the files
-test: $(BUILT_TESTS)
-
-# Rule to install the header files and libraries
-install: build
-	mkdir -p $(DESTDIR)/include/md407
-	cp $(LIBRARY_SRCS) $(DESTDIR)/include/md407
-
-# Rule to uninstall the header files and libraries
-uninstall:
-	rm -rf $(DESTDIR)/include/md407
-
-# Rule to clean up the object files and target libraries
 clean:
 	rm -rf $(BUILD_DIR)
 
-# Define the default target for the Makefile
-all: test
+distclean:
+	rm -rf $(BUILD_DIR) Makefile configure configure~ aclocal.m4 config.guess config.status config.sub install-sh
 
 .PHONY: test all install uninstall
