@@ -1,3 +1,5 @@
+dnl NOTE: This is only a minimal configure script.
+
 ################################################################################ 
 # preamble
 ################################################################################ 
@@ -58,12 +60,6 @@ AC_CONFIG_SRCDIR(md407-ram.x)
 AC_CANONICAL_HOST
 
 ################################################################################ 
-# configure headers
-################################################################################ 
-
-# AC_CONFIG_HEADERS(src/flint-config.h:src/config.h.in)
-
-################################################################################ 
 # features
 ################################################################################ 
 
@@ -78,63 +74,80 @@ yes|no)
 esac],
 enable_debug="yes")
 
+AC_ARG_ENABLE(simulation,
+[AS_HELP_STRING([--enable-simulation],[Enable simulation [default=yes]])],
+[case $enableval in
+yes|no)
+    ;;
+*)
+    AC_MSG_ERROR([Bad value $enableval for --enable-simulation. Need yes or no.])
+    ;;
+esac],
+enable_simulation="yes")
+
 ################################################################################ 
 # programs
 ################################################################################ 
 
-AC_PROG_CC
-
 AC_PROG_MKDIR_P
-
-################################################################################ 
-# environment variables
-################################################################################ 
-
-AC_ARG_VAR(ABI, [Desired ABI])
 
 ################################################################################ 
 # check programs and system
 ################################################################################ 
 
-AC_SUBST(WL,$wl)
+# FIXME: Make proper check with AC_PROG_CC
+AC_CHECK_PROG([CC], $host-gcc, $host-gcc, error)
+if test "$ac_cv_prog_CC" = "error";
+then
+    AC_MSG_ERROR([Could not find gcc for the host. Did you specify the correct host?])
+fi
 
-################################################################################ 
-# check headers
-################################################################################ 
+AC_CHECK_PROG([AR], $host-ar, $host-ar, error)
+if test "$ac_cv_prog_AR" = "error";
+then
+    AC_MSG_ERROR([Could not find ar for the host. Did you specify the correct host?])
+fi
 
-# Mandatory headers
-AC_CHECK_HEADERS([stdarg.h stdio.h stdlib.h stdint.h string.h math.h float.h errno.h gmp.h mpfr.h],,
-                 AC_MSG_ERROR([Could not find a mandatory header!]))
+AC_CHECK_PROG([OBJCOPY], $host-objcopy, $host-objcopy, error)
+if test "$ac_cv_prog_OBJCOPY" = "error";
+then
+    AC_MSG_ERROR([Could not find objcopy for the host. Did you specify the correct host?])
+fi
 
 ################################################################################ 
 # CFLAGS
 ################################################################################ 
 
-CFLAGS="-O0 -Wall -Wextra -mthumb -march=armv6-m -mno-unaligned-access -mfloat-abi=soft -std=gnu17 -D SIMULATOR"
-LIBS="-lgcc -lc_nano"
-LDFLAGS="-Tmd407-ram.x -nostartfiles"
+AC_ARG_VAR([CFLAGS], [C compiler flags])
+AC_ARG_VAR([LDFLAGS], [linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>])
+AC_ARG_VAR([LIBS], [libraries to pass to the linker, e.g. -l<library>])
+AC_ARG_VAR([CPPFLAGS], [(Objective) C/C++ preprocessor flags, e.g. -I<include dir> if you have headers in a nonstandard directory <include dir>])
 
+# Default values
+if test -z "$CFLAGS";
+then
+    CFLAGS="-O0 -Wall -Wextra -mthumb -march=armv6-m -mno-unaligned-access -mfloat-abi=soft -std=gnu17"
+fi
+
+if test -z "$LDFLAGS";
+then
+    LDFLAGS="-Tmd407-ram.x"
+fi
+
+if test -z "$LIBS";
+then
+    LIBS="-lgcc -lc_nano -nostartfiles"
+fi
+
+# Options
 if test "$enable_debug" = "yes";
 then
     CFLAGS="-g $CFLAGS"
 fi
 
-CPPFLAGS="-I./src $CPPFLAGS"
-
-################################################################################ 
-# substitutions and definitions
-################################################################################ 
-
-if test "$with_ntl" = "yes";
+if test "$enable_simulation" = "yes";
 then
-    AC_SUBST(WANT_NTL,1)
-else
-    AC_SUBST(WANT_NTL,0)
-fi
-
-if test "$with_blas" = "yes";
-then
-    AC_DEFINE(FLINT_USES_BLAS,1,[Define to enable BLAS.])
+    CFLAGS="-D SIMULATOR"
 fi
 
 ################################################################################ 

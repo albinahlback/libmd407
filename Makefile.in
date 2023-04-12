@@ -1,0 +1,71 @@
+# Copyright (C) 2023  Albin Ahlbäck
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+CC:=@CC@
+AR:=@AR@
+OBJCOPY:=@OBJCOPY@
+
+CFLAGS=@CFLAGS@
+CPPFLAGS=@CPPFLAGS@
+LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@
+OBJCOPY_FLAGS:=-O srec
+
+PREFIX:=@prefix@
+
+SRC_DIR:=md407
+TEST_DIR:=test
+BUILD_DIR:=build
+
+SOURCES:=$(wildcard $(SRC_DIR)/*.h)
+
+TEST_SOURCES:=$(wildcard $(TEST_SRC_DIR)/*.c)
+TEST_OBJS:=$(TEST_SRCS:.c=.o)
+TEST_S19:=$(TEST_SRCS:.c=.s19)
+
+TESTS:=$(addprefix $(BUILD_DIR)/,$(TEST_OBJS:.o=)) $(addprefix $(BUILD_DIR)/,$(TEST_S19))
+
+# Rule to build the test sources inside the tests directory
+$(BUILD_DIR)/$(TEST_SRC_DIR)/%: $(BUILD_DIR)/$(TEST_SRC_DIR)/%.o $(BUILT_LIBS_OBJ)
+	$(CC) $(CC_FLAGS) $^ -o $@
+
+$(BUILD_DIR)/$(TEST_SRC_DIR)/%.o: $(TEST_SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+
+$(BUILD_DIR)/$(TEST_SRC_DIR)/%.s19: $(BUILD_DIR)/$(TEST_SRC_DIR)/%
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
+
+# Rule to build all the files
+test: $(BUILT_TESTS)
+
+# Rule to install the header files and libraries
+install: build
+	mkdir -p $(DESTDIR)/include/md407
+	cp $(LIBRARY_SRCS) $(DESTDIR)/include/md407
+
+# Rule to uninstall the header files and libraries
+uninstall:
+	rm -rf $(DESTDIR)/include/md407
+
+# Rule to clean up the object files and target libraries
+clean:
+	rm -rf $(BUILD_DIR)
+
+# Define the default target for the Makefile
+all: test
+
+.PHONY: test all install uninstall
