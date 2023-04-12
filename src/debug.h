@@ -26,7 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define _USART_BASE (0x40011000)
 #define USART(n) ((PUSART) _USART_BASE + 0x1400 * (n))
 
-typedef volatile struct __attribute__((packed))
+typedef volatile struct
 {
 	uint16_t sr;
 	uint16_t Unused0;
