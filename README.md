@@ -42,14 +42,25 @@ programs, where `HOST` is typically is `arm-none-eabi`:
 
 - `$HOST-gcc`, the C compiler for `HOST`,
 - `$HOST-objcopy`, the objcopy for `HOST`,
-- `$HOST-ar`, the archiver for `HOST`, and
-- `autoreconf`.
+- `$HOST-ar`, the archiver for `HOST`,
+- `autoreconf`, and
+- `make`.
 
 On Arch-Linux, these can be installed through
 ```
 pacman -S arm-none-eabi-gcc
 pacman -S arm-none-eabi-newlib
 pacman -S autoconf
+pacman -S make
+```
+
+On Debian-type systems (including Ubuntu), these can be installed through
+```
+apt install gcc-arm-none-eabi
+apt install binutils-arm-none-eabi
+apt install libnewlib-arm-none-eabi
+apt install autoconf
+apt install make
 ```
 
 The installation procedure that follows is then very typical of the installation
@@ -62,8 +73,8 @@ make install
 ```
 
 Although some users prefer installing it to `/usr/arm-none-eabi`, the author of
-this fork recommends instead to install it under your `$HOME` to avoid the use
-of any unnecessary root usage.
+this fork recommends instead to install it under your `$HOME` to avoid any
+unnecessary root usage.
 
 
 ## Authors
