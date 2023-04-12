@@ -5,6 +5,7 @@ config.sub
 configure
 configure~
 Makefile
+install-sh
 
 build/
 
