@@ -46,7 +46,7 @@ AC_PREREQ(2.69)
 
 define(LIBMD407_VERSION,[0.0.1-dev])
 
-AC_INIT(LIBMD407, LIBMD407_VERSION, [https://github.com/albinahlback/libmd407/issues/], libmd407)
+AC_INIT(libmd407, LIBMD407_VERSION, [https://github.com/albinahlback/libmd407/issues/], libmd407)
 AC_LANG(C)
 
 # Make sure that we are in the right directory
