@@ -1,10 +1,13 @@
 # MD407 Utils Library
-This library contains a collection of utilities and helpful functions, data structures, macros, etc.
+
+This library contains a collection of utilities and helpful functions, data
+structures, macros, etc. for MD407 computers used at the Machine Oriented
+Programming course at Chalmers University of Technology.
 
 
 ## Usage
-Include the headers like: `#include <md407/debug.h`, and link the desired stuff.
 
+Include the headers like: `#include <md407/debug.h>`, and link the desired stuff.
 
 ### Example
 ```c
@@ -12,17 +15,19 @@ Include the headers like: `#include <md407/debug.h`, and link the desired stuff.
 #include <md407/time.h>
 #include <md407/debug.h>
 
-int main() {
-    // Set pins 7-15 as outputs.
+int
+main(void)
+{
+    /* Set pins 7-15 as outputs */
     GPIO_E->moder_high = 0x5555;
 
-    // Delay for 1 second.
+    /* Delay for 1 second */
     delay_milli(1000);
 
-    // Write 'E' to the output.
+    /* Write 'E' to the output */
     GPIO_E->odr_high = 'E';
 
-    // Print a text to USART1 for debug.
+    /* Print a text to USART1 for debug */
     printc("Hello World!\n");
 
     return 0;
@@ -31,40 +36,40 @@ int main() {
 
 
 ## Installation
-Pick your system OS and follow the instructions:
 
-<details open>
-<summary><h3>*NIX (Linux, MacOS, ...)</h3></summary>
+This library only allows for Unix-type systems. It requires the following
+programs, where `HOST` is typically is `arm-none-eabi`:
 
-The destination directory (`DESTDIR`) should be `/usr/arm-none-eabi` on **Linux** *(maybe the same for other \*NIX... I haven't checked)*. If that does not work then do:
-`$ make DESTDIR=(your dir here) install`.
+- `$HOST-gcc`, the C compiler for `HOST`,
+- `$HOST-objcopy`, the objcopy for `HOST`,
+- `$HOST-ar`, the archiver for `HOST`, and
+- `autoreconf`.
 
-```sh
-git clone https://github.com/pythar-chalmers/libmd407 && cd libmd407 && sudo make install
+On Arch-Linux, these can be installed through
 ```
-Otherwise just copy-paste the above into your terminal and press enter.
-	
-</details>
+pacman -S arm-none-eabi-gcc
+pacman -S arm-none-eabi-newlib
+pacman -S autoconf
+```
 
-<details>
-<summary><h3>Windows</h3></summary>
-	<details>
-	<summary><h5>Option A</h5></summary>
-		<ol>
-		  <li> Go to <a href="https://distrochooser.de/" target="_blank">this website</a> and then install the recommended distribution. </li>
-		  <li> Come back here and read the above. </li>
-		</ol>
-	</details>
-	<details>
-	<summary><h5>Option B</h5></summary>
-		You're on your own lol
-	</details>
-</details>
+The installation procedure that follows is then very typical of the installation
+process of many GNU/Linux projects:
+```
+cd path/to/libmd407
+./bootstrap.sh
+./configure --host=$HOST --prefix=path/to/my/installation/path
+make install
+```
+
+Although some users prefer installing it to `/usr/arm-none-eabi`, the author of
+this fork recommends instead to install it under your `$HOME` to avoid the use
+of any unnecessary root usage.
 
 
 ## Authors
 - [Elias Almqvist](https://github.com/almqv)
 - [Ismail Sacic](https://github.com/ismail424)
+- Albin Ahlbäck
 
 
 ## License
