@@ -1,4 +1,4 @@
-/* types.h
+/* t-exc.c
 
 Copyright (C) 2023  Albin Ahlbäck
 
@@ -18,28 +18,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 */
 
-#ifndef TYPES_H
-#define TYPES_H
+#include "exti.h"
+#include "syscfg.h"
 
-typedef unsigned char boolean;
-#define true  ((boolean) 1)
-#define false ((boolean) 0)
+__attribute__((naked)) __attribute__((section(".start_section")))
+void startup(void)
+{
+    asm volatile (" LDR R0,=0x2001C000\n"   /* set stack */
+                  " MOV SP,R0\n"
+                  " BL main\n"              /* call main */
+                  ".L1: B .L1\n");          /* never return */
+}
 
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long int64_t;
+int main(void)
+{
+    /* These are just to test. Doesn't actually do anything. */
+    EXTI->imr         = 0b1010100;
+    SYSCFG->exticr2_0 = 0xE;
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long uint64_t;
-
-typedef int size_t;
-
-typedef unsigned char byte_t;
-
-#define NULLPTR ((void *) 0)
-#define NULL NULLPTR
-
-#endif /* TYPES_H */
+    return 0;
+}

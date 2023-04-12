@@ -1,4 +1,4 @@
-/* types.h
+/* t-keyb.c
 
 Copyright (C) 2023  Albin Ahlbäck
 
@@ -18,28 +18,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 */
 
-#ifndef TYPES_H
-#define TYPES_H
+__attribute__((naked)) __attribute__((section(".start_section")))
+void startup(void)
+{
+    asm volatile (" LDR R0,=0x2001C000\n"   /* set stack */
+                  " MOV SP,R0\n"
+                  " BL main\n"              /* call main */
+                  ".L1: B .L1\n");          /* never return */
+}
 
-typedef unsigned char boolean;
-#define true  ((boolean) 1)
-#define false ((boolean) 0)
+#include "keypad.h"
+#include "debug.h"
 
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long int64_t;
+int main(void)
+{
+    keypad kp;
+    char key;
+    char str[] = " \n";
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long uint64_t;
 
-typedef int size_t;
+    // Connect the keypad to GPIO_D (HIGH)
+    keypad_connect(&kp, GPIO_D, true);
 
-typedef unsigned char byte_t;
+    while (true)
+    {
+        key = keypad_read(&kp);
 
-#define NULLPTR ((void *) 0)
-#define NULL NULLPTR
+        if (key)
+        {
+            str[0] = key;
+            printc(str);
+        }
+    }
 
-#endif /* TYPES_H */
+    return 0;
+}

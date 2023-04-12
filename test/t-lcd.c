@@ -1,4 +1,4 @@
-/* types.h
+/* t-lcd.c
 
 Copyright (C) 2023  Albin Ahlbäck
 
@@ -18,28 +18,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 */
 
-#ifndef TYPES_H
-#define TYPES_H
+#include "lcd.h"
+#include "gpio.h"
 
-typedef unsigned char boolean;
-#define true  ((boolean) 1)
-#define false ((boolean) 0)
+__attribute__((naked)) __attribute__((section(".start_section")))
+void startup(void)
+{
+    asm volatile (" LDR R0,=0x2001C000\n"   /* set stack */
+                  " MOV SP,R0\n"
+                  " BL main\n"              /* call main */
+                  ".L1: B .L1\n");          /* never return */
+}
 
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long int64_t;
+int main(void)
+{
+    char text[] = "sample\n\rtext";
+    lcd display;
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long uint64_t;
+    lcd_connect(&display, GPIO_E);
+    lcd_puts(&display, 0, 0, text);
 
-typedef int size_t;
-
-typedef unsigned char byte_t;
-
-#define NULLPTR ((void *) 0)
-#define NULL NULLPTR
-
-#endif /* TYPES_H */
+    return 0;
+}

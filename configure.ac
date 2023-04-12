@@ -139,6 +139,8 @@ then
     LIBS="-lgcc -lc_nano -nostartfiles"
 fi
 
+CPPFLAGS="-I./src $CPPFLAGS"
+
 # Options
 if test "$enable_debug" = "yes";
 then

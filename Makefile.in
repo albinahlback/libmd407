@@ -54,7 +54,7 @@ install: | $(INSTALL_DIRS)
 uninstall:
 	rm -rf $(PREFIX)/include/libmd407
 
-test: $(TESTS) $(TEST_S19)
+tests: $(TESTS) $(TEST_S19)
 
 $(BUILD_DIR)/$(TEST_DIR)/%.o: $(TEST_DIR)/%.c | $(BUILD_DIR)/$(TEST_DIR)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
