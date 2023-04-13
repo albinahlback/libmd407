@@ -19,6 +19,8 @@ AR:=@AR@
 OBJCOPY:=@OBJCOPY@
 MKDIR_P:=@MKDIR_P@
 CP:=cp
+RM_F:=rm -f
+RM_RF:=rm -rf
 
 CFLAGS=@CFLAGS@
 CPPFLAGS=@CPPFLAGS@
@@ -33,13 +35,14 @@ TEST_DIR:=test
 BUILD_DIR:=build
 
 HEADERS:=$(wildcard $(SRC_DIR)/*.h)
+LDSCRIPTS:=$(wildcard *.x)
 
 TEST_SOURCES:=$(wildcard $(TEST_DIR)/*.c)
 TEST_OBJS:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=.o))
 TEST_S19:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=.s19))
 TESTS:=$(addprefix $(BUILD_DIR)/,$(TEST_SOURCES:.c=))
 
-INSTALL_DIRS:=$(PREFIX)/include/libmd407
+INSTALL_DIRS:=$(PREFIX)/include/libmd407 $(PREFIX)/lib/ldscripts
 BUILD_DIRS:=$(BUILD_DIR) $(BUILD_DIR)/$(TEST_DIR)
 
 all:
@@ -50,9 +53,11 @@ $(INSTALL_DIRS) $(BUILD_DIRS):
 
 install: | $(INSTALL_DIRS)
 	$(CP) $(HEADERS) $(PREFIX)/include/libmd407
+	$(CP) $(LDSCRIPTS) $(PREFIX)/lib/ldscripts
 
 uninstall:
-	rm -rf $(PREFIX)/include/libmd407
+	$(RM_RF) $(PREFIX)/include/libmd407
+	$(RM_F) $(foreach ldscript, $(LDSCRIPTS), $(PREFIX)/include/$(ldscript))
 
 tests: $(TESTS) $(TEST_S19)
 
