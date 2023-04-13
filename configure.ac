@@ -129,10 +129,7 @@ then
     CFLAGS="-O0 -Wall -Wextra -mthumb -march=armv6-m -mno-unaligned-access -mfloat-abi=soft -std=gnu17"
 fi
 
-if test -z "$LDFLAGS";
-then
-    LDFLAGS="-Tmd407-ram.x"
-fi
+LDFLAGS="-Tmd407-ram.x $LDFLAGS"
 
 if test -z "$LIBS";
 then
@@ -149,7 +146,7 @@ fi
 
 if test "$enable_simulation" = "yes";
 then
-    CFLAGS="-D SIMULATOR"
+    CFLAGS="-D SIMULATOR $CFLAGS"
 fi
 
 ################################################################################ 
